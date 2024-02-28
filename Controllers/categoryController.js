@@ -3,7 +3,7 @@ const categories = require('../Models/CategorySchema');
 exports.addCategory = async (req, res) => {
     console.log("Inside categoryController: add category");
     const userId = req.payload;
-    console.log(userId,"id")
+    // console.log(userId, "id")
     const thumbnail = req.file.filename;
 
     try {
@@ -57,11 +57,11 @@ exports.deleteCategoryById = async (req, res) => {
     const _id = req.params._id;
 
     try {
-        const deleteCategory =await categories.findByIdAndDelete(_id);
-        if(deleteCategory){
+        const deleteCategory = await categories.findByIdAndDelete(_id);
+        if (deleteCategory) {
             res.status(200).json("category Deleted Successfully")
         }
-        else{
+        else {
             res.status(406)
         }
 
@@ -70,3 +70,33 @@ exports.deleteCategoryById = async (req, res) => {
         res.status(401).json(`Request Failed Due To : ${err}`)
     }
 }
+
+
+// edit 
+exports.editCategory = async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
+    const { title } = req.body;
+
+    try {
+        const existingCategory = await categories.findById(id);
+
+
+        const newThumbnail = req.file ? req.file.filename : existingCategory.thumbnail;
+
+        const updateCategory = await categories.findByIdAndUpdate(
+            { _id: id },
+            { title, thumbnail: newThumbnail },
+            { new: true }
+        );
+
+        if (updateCategory) {
+            res.status(200).json("Category Updated Successfully");
+        } else {
+            res.status(406).json("Not Found");
+        }
+
+    } catch (err) {
+        res.status(401).json(`Request Failed due to ${err}`);
+    }
+};

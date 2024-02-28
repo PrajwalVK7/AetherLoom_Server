@@ -9,7 +9,7 @@ exports.addProduct = async (req, res) => {
     const images = req.files['images'].map(file => file.filename);
 
     try {
-        const { name, category,gst, description, price } = req.body;
+        const { name, category, gst, description, price } = req.body;
         const existingProduct = await products.findOne({ name: name });
         if (existingProduct) {
             res.status(406).json("Product name already exists, Please Use unique name")
@@ -22,7 +22,7 @@ exports.addProduct = async (req, res) => {
                 description: description,
                 images: images,
                 price: price,
-                gst:gst
+                gst: gst
 
             });
             await newProduct.save()
@@ -40,7 +40,7 @@ exports.getAllProducts = async (req, res) => {
     try {
         const searchKey = req.query.search;
         const query = {
-            name:{
+            name: {
                 $regex: searchKey, $options: 'i'
             }
         }
@@ -58,35 +58,35 @@ exports.getAllProducts = async (req, res) => {
     }
 }
 
-exports.getRecentProducts = async(req,res)=>{
-    try{
-        const product =await products.find().sort({"_id":-1}).limit(6)
+exports.getRecentProducts = async (req, res) => {
+    try {
+        const product = await products.find().sort({ "_id": -1 }).limit(6)
         // console.log(product)
-        if(product){
+        if (product) {
             res.status(200).json(product)
-        }else{
+        } else {
             res.status(406).json("No Products")
         }
     }
-    catch(err){
+    catch (err) {
         res.status(401).json(err)
     }
 }
 
-exports.getProductById = async(req,res)=>{
+exports.getProductById = async (req, res) => {
     const _id = req.params._id;
-    console.log("Get pro",_id)
-    try{
+    console.log("Get pro", _id)
+    try {
         const product = await products.findById(_id);
-        if(product){
+        if (product) {
             res.status(200).json(product)
         }
-        else{
+        else {
             res.status(406).json("Request Failed")
         }
 
     }
-    catch(err){
+    catch (err) {
         res.status(401).json(`Request Failed due to ${err}`)
     }
 }
@@ -110,14 +110,14 @@ exports.deleteProductById = async (req, res) => {
 exports.getAllProductsByCategory = async (req, res) => {
     console.log("Inside products by cate")
     const category = req.params.category;
-    console.log("categ",category)
+    console.log("categ", category)
     try {
-        const allProducts =await products.find({category:category})
+        const allProducts = await products.find({ category: category })
         console.log(allProducts)
-        if(allProducts){
+        if (allProducts) {
             res.status(200).json(allProducts);
         }
-        else{
+        else {
             res.status(406).json(`No Products In ${category}`)
         }
 
@@ -127,6 +127,46 @@ exports.getAllProductsByCategory = async (req, res) => {
     }
 }
 
-exports.updateUserProfile = async(req,res)=>{
-    
+
+exports.updateProduct = async (req, res) => {
+    console.log("Updating Product");
+
+    const { id } = req.params;
+    const { name, category, gst, description, price } = req.body;
+
+    try {
+        const existingProduct = await products.findById(id);
+
+        const updatedThumbnail = req.files?.thumbnail?.[0]?.filename || existingProduct.thumbnail;
+        const updatedImages = req.files?.images?.map(file => file.filename) || existingProduct.images;
+
+        const updatedProduct = await products.findByIdAndUpdate(
+            { _id: id },
+            { name, category, gst, description, price, thumbnail: updatedThumbnail, images: updatedImages },
+            { new: true }
+        );
+
+        if (updatedProduct) {
+            res.status(200).json('Product Updated Successfully');
+        } else {
+            res.status(406).json("Failed to Update");
+        }
+    } catch (err) {
+        res.status(401).json("Request Failed Due To: " + err);
+    }
+};
+
+
+/// featured 
+
+exports.getFeatured = async (req, res) => {
+    try {
+        const featured = await products.find({ price: { $gt: 2000 } }).limit(6);
+        if(featured){
+            res.status(200).json(featured)
+        }
+    }
+    catch (err) {
+        res.status(401).json("Request Failed Due To: " + err);
+    }
 }

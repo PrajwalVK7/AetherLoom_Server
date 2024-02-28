@@ -30,22 +30,7 @@ const userSchema = new mongoose.Schema({
     },
     profile: {
         type: String
-    },
-    wishlist: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Products'
-        }
-    ],
-    cart: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Products'
-            },
-            count: { type: Number, default: 1 }
-        }
-    ]
+    }
 });
 
 const users = mongoose.model("users",userSchema);

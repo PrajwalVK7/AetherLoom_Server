@@ -6,8 +6,9 @@ const orderSchema = new mongoose.Schema({
         require:true
     },
     productID:{
-        type:String,
-        require:true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products',
+        require: true
     },
     total:{
         type:String,
@@ -18,6 +19,10 @@ const orderSchema = new mongoose.Schema({
         require:true
     }    ,
     modeOfPayment:{
+        type:String,
+        require:true
+    },
+    address:{
         type:String,
         require:true
     }

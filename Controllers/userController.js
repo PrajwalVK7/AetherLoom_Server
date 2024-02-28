@@ -24,8 +24,6 @@ exports.register = async (req, res) => {
                 district: "",
                 state: "",
                 profile: "",
-                wishlist: [],
-                cart: []
             })
             await newUser.save()
             res.status(200).json(newUser)
@@ -65,6 +63,28 @@ exports.login = async (req, res) => {
     }
 }
 
+// get userDetails
+
+exports.getUserData = async (req, res) => {
+    const userID = req.payload;
+
+    try {
+        const userData = await users.findById(userID)
+        if (userData) {
+            res.status(200).json(userData)
+        }
+        else {
+            res.status(406).json("User Not Found")
+        }
+
+    } catch (err) {
+        res.status(401).json("Request Failed ", err)
+    }
+}
+
+
+
+
 // get all users details
 
 exports.getAllUsers = async (req, res) => {
@@ -75,7 +95,7 @@ exports.getAllUsers = async (req, res) => {
         if (allUsers.length > 0) {
             res.status(200).json(allUsers)
         }
-        else{
+        else {
             res.status(406).json("No users")
         }
 
@@ -83,5 +103,38 @@ exports.getAllUsers = async (req, res) => {
     catch (err) {
         console.log(err);
         res.state(501).json("Internal Server err")
+    }
+}
+
+
+
+// update profile
+exports.updateProfile = async (req, res) => {
+    const userID = req.payload;
+    const { mobile, street, pincode, state, district, profile } = req.body
+    const profileImage = req.file ? req.file.filename : profile;
+
+    try {
+        const editProfile = await users.findByIdAndUpdate({_id:userID},{
+            mobile:mobile,
+            pincode:pincode,
+            street:street,
+            district:district,
+            state:state,
+            profile:profileImage
+        },
+        {
+            new: true
+        })
+        await editProfile.save()
+        if(editProfile){
+            res.status(200).json("Successfully Updated")
+        }
+        else{
+            res.status(406).json("User Not Found")
+        }
+    }
+    catch (err) {
+        res.status(401).json("Update Failed due to", err)
     }
 }
