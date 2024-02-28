@@ -38,5 +38,18 @@ exports.getOrders = async (req, res) => {
         console.error("Error in getOrders:", err);
         res.status(500).json("Request Failed due to an internal server error");
     }
-    
+
+}
+
+exports.getAllOrdersFromDb = async (req, res) => {
+    try {
+        const allOrders = await orders.find();
+        if(allOrders){
+            res.status(200).json(allOrders)
+        }
+    }
+    catch (err) {
+        console.error("Error in getOrders:", err);
+        res.status(500).json("Request Failed due to an internal server error");
+    }
 }

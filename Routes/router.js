@@ -79,6 +79,8 @@ router.get('/products/user/:_id',productController.getProductById)
 
 router.post('/product/order/true',jwtMiddleware,orderController.orderProduct)
 router.get('/orders',jwtMiddleware,orderController.getOrders)
+//all
+router.get('/orders/all',jwtMiddleware,orderController.getAllOrdersFromDb);
 
 
 //UPDATE
