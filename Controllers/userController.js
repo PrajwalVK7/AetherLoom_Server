@@ -1,6 +1,7 @@
 //=========== user - reg,profile,log..
 const jwt = require('jsonwebtoken') // jwt web token
 const users = require('../Models/UserSchema');
+const bcrypt = require('bcrypt')
 
 /// user registration
 exports.register = async (req, res) => {
@@ -14,10 +15,12 @@ exports.register = async (req, res) => {
             res.status(406).json("Account already exists , Please Login");
         }
         else {
+            const hashedPassword =  await bcrypt.hash(password, 10);
+            console.log(hashedPassword)
             const newUser = new users({
                 username: username,
                 email: email,
-                password: password,
+                password: hashedPassword,
                 mobile: "",
                 pincode: "",
                 street: "",
@@ -39,29 +42,31 @@ exports.register = async (req, res) => {
 // login
 
 exports.login = async (req, res) => {
-    console.log("inside login")
+    console.log("inside login");
     console.log("Req body:", req.body);
     const { email, password } = req.body;
 
     try {
-        const existingUser = await users.findOne({ email: email, password: password })
+        const existingUser = await users.findOne({ email: email });
         if (existingUser) {
-            const token = jwt.sign({ userID: existingUser._id }, "aetherloomkey1234")
-            res.status(200).json({
-                existingUser: existingUser,
-                token: token
-            })
-            console.log(token)
-        }
-        else {
-            res.status(406).json("Invalid email id or password")
-        }
+            const checkPassword = await bcrypt.compare(password, existingUser.password);
 
+            if (checkPassword) {
+                const token = jwt.sign({ userID: existingUser._id }, "aetherloomkey1234");
+                res.status(200).json({
+                    existingUser: existingUser,
+                    token: token
+                });
+            } else {
+                res.status(406).json("Invalid email id or password");
+            }
+        } else {
+            res.status(406).json("Invalid email id or password");
+        }
+    } catch (err) {
+        res.status(401).json(`Login failed due to: ${err}`);
     }
-    catch (err) {
-        res.status(401).json(`login failed due to : ${err}`)
-    }
-}
+};
 
 // get userDetails
 

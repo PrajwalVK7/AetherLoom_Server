@@ -105,6 +105,8 @@ router.delete('/user/cart/remove/:itemID',jwtMiddleware,cartController.removeFro
 // edit cart
 router.put('/cart/edit/:itemID',jwtMiddleware,cartController.editCart)
 
+// delete all
+router.delete('/cart/order=true',jwtMiddleware,cartController.deleteAll);
 
 // wishlist 
 

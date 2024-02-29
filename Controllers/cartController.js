@@ -94,3 +94,14 @@ exports.editCart = async (req, res) => {
         res.status(401).json(err)
     }
 }
+
+exports.deleteAll = async(req,res)=>{
+    const userID = req.payload;
+    try{
+        const deleteAll =await carts.findOneAndDelete({userID:userID});
+        res.status(200).json("Ordered items were removed from cart")
+    }
+    catch(err){
+        res.status(200)
+    }
+}
